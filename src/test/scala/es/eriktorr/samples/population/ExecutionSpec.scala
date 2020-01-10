@@ -1,7 +1,7 @@
 package es.eriktorr.samples.population
 
 import es.eriktorr.samples.population.CityPopulationLoader.loadFrom
-import es.eriktorr.samples.population.RetryPolicy.implicits._
+import es.eriktorr.samples.population.Retryable.implicits._
 import monix.eval.Task
 import monix.execution.Scheduler.Implicits.global
 import monix.execution.schedulers.SchedulerService
@@ -28,7 +28,7 @@ class ExecutionSpec extends SetupDataset with ScalaFutures {
 
   def loadCityPopulation(pathToFile: String): Task[Dataset[CityPopulation]] = Task {
     loadFrom(pathToFile)
-  }.executeOn(blockingScheduler).retryPolicy(3)
+  }.executeOn(blockingScheduler).retryOnFailure()
 
   def count(cityPopulation: Seq[Dataset[CityPopulation]]): Task[Long] = Task {
     cityPopulation.map(_.count()).sum
