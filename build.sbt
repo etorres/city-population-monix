@@ -1,5 +1,6 @@
 lazy val SparkVersion = "2.4.3"
 lazy val SparkTestingVersion = s"${SparkVersion}_0.12.0"
+lazy val MonixVersion = "3.1.0"
 
 def makeColorConsole() = {
   val ansi = System.getProperty("sbt.log.noformat", "false") != "true"
@@ -15,6 +16,7 @@ lazy val root = project.in(file(".")).
     libraryDependencies ++= Seq(
       "org.apache.spark" %% "spark-core" % SparkVersion,
       "org.apache.spark" %% "spark-sql"  % SparkVersion,
+      "io.monix" %% "monix-eval" % MonixVersion,
       "com.holdenkarau" %% "spark-testing-base" % SparkTestingVersion % Test
     ),
     logBuffered in Test := false,
