@@ -1,6 +1,7 @@
 package es.eriktorr.samples.population
 
 import es.eriktorr.samples.population.CityPopulationLoader.loadFrom
+import es.eriktorr.samples.population.RetryPolicy.implicits._
 import monix.eval.Task
 import monix.execution.Scheduler.Implicits.global
 import monix.execution.schedulers.SchedulerService
@@ -9,7 +10,6 @@ import org.apache.spark.sql.{Dataset, SparkSession}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.time.{Seconds, Span}
 
-import scala.concurrent.duration._
 import scala.util.control.NonFatal
 import scala.util.{Failure, Success}
 
@@ -28,7 +28,7 @@ class ExecutionSpec extends SetupDataset with ScalaFutures {
 
   def loadCityPopulation(pathToFile: String): Task[Dataset[CityPopulation]] = Task {
     loadFrom(pathToFile)
-  }.executeOn(blockingScheduler)
+  }.executeOn(blockingScheduler).retryPolicy(3)
 
   def count(cityPopulation: Seq[Dataset[CityPopulation]]): Task[Long] = Task {
     cityPopulation.map(_.count()).sum
@@ -57,12 +57,4 @@ class ExecutionSpec extends SetupDataset with ScalaFutures {
     }
     cancelableFuture
   }
-
-  def withRetryPolicy[A](times: Int, source: Task[A]): Task[A] =
-    source.onErrorHandleWith { err =>
-      if (times <= 0) Task.raiseError(err) else {
-        withRetryPolicy(times - 1, source)
-          .delayExecution(500.millis)
-      }
-    }
 }
