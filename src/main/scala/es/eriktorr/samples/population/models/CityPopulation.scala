@@ -1,4 +1,4 @@
-package es.eriktorr.samples.population
+package es.eriktorr.samples.population.models
 
 case class CityPopulation(countryOrArea: String,
                           year: Int,

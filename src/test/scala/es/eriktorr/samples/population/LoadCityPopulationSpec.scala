@@ -1,6 +1,6 @@
 package es.eriktorr.samples.population
 
-import es.eriktorr.samples.population.CityPopulationLoader.loadFrom
+import es.eriktorr.samples.population.steps.CityPopulationLoader.loadFrom
 import org.scalatest.prop.TableDrivenPropertyChecks
 
 class LoadCityPopulationSpec extends SetupDataset with TableDrivenPropertyChecks {

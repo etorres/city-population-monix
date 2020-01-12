@@ -1,6 +1,8 @@
 lazy val SparkVersion = "2.4.3"
 lazy val SparkTestingVersion = s"${SparkVersion}_0.12.0"
 lazy val MonixVersion = "3.1.0"
+lazy val ScalaLoggingVersion = "3.9.2"
+lazy val LogbackVersion = "1.2.3"
 
 def makeColorConsole() = {
   val ansi = System.getProperty("sbt.log.noformat", "false") != "true"
@@ -9,6 +11,7 @@ def makeColorConsole() = {
 
 lazy val root = project.in(file(".")).
   settings(
+    maintainer := "etserrano@gmail.com",
     organization := "es.eriktorr.samples",
     name := "city-population-monix",
     version := "1.0",
@@ -17,12 +20,23 @@ lazy val root = project.in(file(".")).
       "org.apache.spark" %% "spark-core" % SparkVersion,
       "org.apache.spark" %% "spark-sql"  % SparkVersion,
       "io.monix" %% "monix-eval" % MonixVersion,
+      "com.typesafe.scala-logging" %% "scala-logging" % ScalaLoggingVersion,
+      "ch.qos.logback" % "logback-classic" % LogbackVersion,
       "com.holdenkarau" %% "spark-testing-base" % SparkTestingVersion % Test
+    ),
+    excludeDependencies ++= Seq(
+      ExclusionRule("log4j", "log4j"),
+      ExclusionRule("org.slf4j", "slf4j-log4j12")
     ),
     logBuffered in Test := false,
     fork in Test := true,
     parallelExecution in Test := false,
     javaOptions ++= Seq("-Xms512M", "-Xmx2048M", "-XX:+CMSClassUnloadingEnabled"),
+    scalacOptions ++= Seq(
+      "-deprecation",
+      "-encoding", "UTF-8",
+      "-language:higherKinds",
+      "-language:postfixOps"),
     initialize ~= { _ => makeColorConsole() },
     initialCommands in console :=
       """
@@ -40,4 +54,5 @@ lazy val root = project.in(file(".")).
       """
         |spark.stop()
       """.stripMargin
-  )
+  ).
+  enablePlugins(JavaAppPackaging)

@@ -1,5 +1,6 @@
-package es.eriktorr.samples.population
+package es.eriktorr.samples.population.tasks
 
+import es.eriktorr.samples.population.models.CityPopulation
 import monix.eval.Task
 import org.apache.spark.sql.Dataset
 
