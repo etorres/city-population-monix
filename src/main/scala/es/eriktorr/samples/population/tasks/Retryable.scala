@@ -15,7 +15,7 @@ object Retryable {
     (task: A, times: Int, delayBetweenAttempts: FiniteDuration) => retryPolicy(task, times, delayBetweenAttempts)
 
   object implicits {
-    implicit class RetryableOps[A](val task: A) extends AnyVal {
+    implicit class RetryableOps[A](val task: A) {
       def retryOnFailure(times: Int = 3, delayBetweenAttempts: FiniteDuration = 2.seconds)(implicit retryable: Retryable[A]): A =
         retryable.retryOnFailure(task, times, delayBetweenAttempts)
     }
