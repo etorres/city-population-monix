@@ -1,28 +1,28 @@
 package es.eriktorr.samples.population
 
-import cats.data.StateT
+import cats.data.IndexedStateT
 import es.eriktorr.samples.population.steps.CityPopulationLoader.loadFrom
-import es.eriktorr.samples.population.steps.RowCounter
-import es.eriktorr.samples.population.tasks.TaskState
+import es.eriktorr.samples.population.steps.RowCounter.countRowsIn
+import es.eriktorr.samples.population.tasks.{CityPopulationCount, CityPopulationData, SourceFiles, TaskState}
 import monix.eval.Task
 import org.apache.spark.sql.SparkSession
 
 object CityPopulationAnalyzer {
-  def cityPopulationStatsFrom(femaleSourceFile: String, maleSourceFile: String): Task[(TaskState, Unit)] = {
-    val initialState = TaskState(femaleSourceFile, maleSourceFile, null, null, 0L)
-    stateProgram.run(initialState)
+  def countCityPopulationIn(femaleSourceFile: String, maleSourceFile: String): Task[(TaskState, Unit)] = {
+    val initialState = SourceFiles(Seq(femaleSourceFile, maleSourceFile))
+    cityPopulationCounter.run(initialState)
   }
 
-  def stateProgram: StateAction[Unit] = for {
+  def cityPopulationCounter: IndexedStateT[Task, SourceFiles, CityPopulationCount, Unit] = for {
     _ <- loadCityPopulation
     _ <- countCityPopulation
   } yield ()
 
-  def loadCityPopulation: StateAction[Unit] = StateT.modifyF { state =>
+  def loadCityPopulation: IndexedStateT[Task, SourceFiles, CityPopulationData, Unit] = IndexedStateT.modifyF { state =>
     buildSession.bracket { spark =>
       implicit val sparkSession: SparkSession = spark
       Task {
-        state.copy(femalePopulation = loadFrom(state.femaleSourceFile), malePopulation = loadFrom(state.maleSourceFile))
+        CityPopulationData(state.files.map(file => loadFrom(file)))
       }
     } { _ => Task.unit }
   }
@@ -34,11 +34,11 @@ object CityPopulationAnalyzer {
       .getOrCreate()
   }.memoizeOnSuccess
 
-  def countCityPopulation: StateAction[Unit] = StateT.modifyF { state =>
+  def countCityPopulation: IndexedStateT[Task, CityPopulationData, CityPopulationCount, Unit] = IndexedStateT.modifyF { state =>
     Task {
-      val count = RowCounter.countRowsIn(Seq(state.femalePopulation, state.malePopulation))
+      val count = countRowsIn(state.dataSets)
       println(s"\n\n >> HERE: City population count: $count\n")
-      state.copy(count = count)
+      CityPopulationCount(count = count)
     }
   }
 }
