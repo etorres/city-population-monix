@@ -21,12 +21,7 @@ lazy val root = project.in(file(".")).
       "org.apache.spark" %% "spark-sql"  % SparkVersion,
       "io.monix" %% "monix-eval" % MonixVersion,
       "com.typesafe.scala-logging" %% "scala-logging" % ScalaLoggingVersion,
-      "ch.qos.logback" % "logback-classic" % LogbackVersion,
       "com.holdenkarau" %% "spark-testing-base" % SparkTestingVersion % Test
-    ),
-    excludeDependencies ++= Seq(
-      ExclusionRule("log4j", "log4j"),
-      ExclusionRule("org.slf4j", "slf4j-log4j12")
     ),
     logBuffered in Test := false,
     fork in Test := true,

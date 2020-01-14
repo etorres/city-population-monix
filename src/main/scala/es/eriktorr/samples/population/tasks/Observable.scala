@@ -1,11 +1,11 @@
-package es.eriktorr.samples.population
+package es.eriktorr.samples.population.tasks
 
 import cats.data.WriterT
 import monix.eval.Task
 
 import scala.concurrent.duration.FiniteDuration
 
-class Monitor {
+class Observable {
 
   case class Timings(data: Map[String, FiniteDuration])
 
