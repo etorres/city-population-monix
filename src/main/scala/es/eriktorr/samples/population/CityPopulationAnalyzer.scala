@@ -26,7 +26,9 @@ object CityPopulationAnalyzer {
       implicit val sparkSession: SparkSession = spark
       val loadFileLTasks = state.files.map(file => Task { loadFrom(file) }.retryOnFailure())
       gatherN(2)(loadFileLTasks).map(dataSets => CityPopulationData(dataSets))
-    } { _ => Task.unit }
+    } {
+      doNothing()
+    }
   }
 
   def buildSession: Task[SparkSession] = Task {
@@ -43,4 +45,6 @@ object CityPopulationAnalyzer {
       CityPopulationCount(count = count)
     }
   }
+
+  private def doNothing(): SparkSession => Task[Unit] = _ => Task.unit
 }
