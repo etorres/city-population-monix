@@ -5,6 +5,7 @@ import cats.data.IndexedStateT.modifyF
 import es.eriktorr.samples.population.steps.CityPopulationLoader.loadFrom
 import es.eriktorr.samples.population.steps.RowCounter.countRowsIn
 import es.eriktorr.samples.population.tasks.Retryable.implicits._
+import es.eriktorr.samples.population.tasks.TaskState.implicits._
 import es.eriktorr.samples.population.tasks.{CityPopulationCount, CityPopulationData, SourceFiles, TaskState}
 import monix.eval.Task
 import monix.eval.Task.gatherN
@@ -16,10 +17,9 @@ object CityPopulationAnalyzer {
     cityPopulationCounter.run(initialState)
   }
 
-  def cityPopulationCounter: IndexedStateT[Task, SourceFiles, CityPopulationCount, Unit] = for {
-    _ <- loadCityPopulation
-    _ <- countCityPopulation
-  } yield ()
+  def cityPopulationCounter: IndexedStateT[Task, SourceFiles, CityPopulationCount, Unit] = {
+    loadCityPopulation >> countCityPopulation
+  }
 
   def loadCityPopulation: IndexedStateT[Task, SourceFiles, CityPopulationData, Unit] = modifyF { state =>
     buildSession.bracket { spark =>
@@ -48,3 +48,9 @@ object CityPopulationAnalyzer {
 
   private def doNothing(): SparkSession => Task[Unit] = _ => Task.unit
 }
+
+// TODO
+//  def cityPopulationCounter: IndexedStateT[Task, SourceFiles, CityPopulationCount, Unit] = for {
+//    _ <- loadCityPopulation
+//    _ <- countCityPopulation
+//  } yield ()

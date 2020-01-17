@@ -2,7 +2,7 @@ lazy val SparkVersion = "2.4.3"
 lazy val SparkTestingVersion = s"${SparkVersion}_0.12.0"
 lazy val MonixVersion = "3.1.0"
 lazy val ScalaLoggingVersion = "3.9.2"
-lazy val LogbackVersion = "1.2.3"
+lazy val MetricsVersion = "3.5.5"
 
 def makeColorConsole() = {
   val ansi = System.getProperty("sbt.log.noformat", "false") != "true"
@@ -21,6 +21,7 @@ lazy val root = project.in(file(".")).
       "org.apache.spark" %% "spark-sql"  % SparkVersion,
       "io.monix" %% "monix-eval" % MonixVersion,
       "com.typesafe.scala-logging" %% "scala-logging" % ScalaLoggingVersion,
+//      "nl.grons" %% "metrics-scala" % MetricsVersion excludeAll(ExclusionRule(organization = "io.dropwizard.metrics")),
       "com.holdenkarau" %% "spark-testing-base" % SparkTestingVersion % Test
     ),
     logBuffered in Test := false,
