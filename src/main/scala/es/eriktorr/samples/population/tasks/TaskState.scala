@@ -9,6 +9,7 @@ trait TaskState
 
 case class SourceFiles(files: Seq[String]) extends TaskState
 case class CityPopulationData(dataSets: Seq[Dataset[CityPopulation]]) extends TaskState
+case class BothGendersCityPopulationData(dataSet: Dataset[CityPopulation]) extends TaskState
 case class CityPopulationCount(count: Long) extends TaskState
 
 object TaskState {
