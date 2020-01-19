@@ -2,7 +2,7 @@ package es.eriktorr.samples.population
 
 import cats.data.IndexedStateT
 import cats.data.IndexedStateT.modifyF
-import es.eriktorr.samples.population.steps.BothGenderUrbanAgglomerationFilter.filterPopulationIn
+import es.eriktorr.samples.population.steps.PeopleLivingInUrbanAreasFilter.peopleLivingInUrbanAreasFrom
 import es.eriktorr.samples.population.steps.CityPopulationLoader.loadFrom
 import es.eriktorr.samples.population.steps.RowCounter.countRowsIn
 import es.eriktorr.samples.population.tasks.Retryable.implicits._
@@ -19,33 +19,33 @@ object CityPopulationAnalyzer {
   }
 
   def cityPopulationCounter: IndexedStateT[Task, SourceFiles, CityPopulationCount, Unit] = {
-    loadCityPopulation >> everyoneLivingInUrbanAreas >> countCityPopulation
+    loadCityPopulation >> peopleLivingInUrbanAreas >> countCityPopulation
   }
 
-  def loadCityPopulation: IndexedStateT[Task, SourceFiles, CityPopulationData, Unit] = modifyF { state =>
+  def loadCityPopulation: IndexedStateT[Task, SourceFiles, CityPopulationGroups, Unit] = modifyF { state =>
     buildSession.bracket { spark =>
       implicit val sparkSession: SparkSession = spark
       val loadFileLTasks = state.files.map(file => Task {
         loadFrom(file)
       }.retryOnFailure())
-      gatherN(2)(loadFileLTasks).map(dataSets => CityPopulationData(dataSets))
+      gatherN(2)(loadFileLTasks).map(dataSets => CityPopulationGroups(dataSets))
     } {
       doNothing()
     }
   }
 
-  def everyoneLivingInUrbanAreas: IndexedStateT[Task, CityPopulationData, BothGendersCityPopulationData, Unit] = modifyF { state =>
+  def peopleLivingInUrbanAreas: IndexedStateT[Task, CityPopulationGroups, CityPopulationDataset, Unit] = modifyF { state =>
     buildSession.bracket { spark =>
       implicit val sparkSession: SparkSession = spark
       Task {
-        BothGendersCityPopulationData(filterPopulationIn(state.dataSets))
+        CityPopulationDataset(peopleLivingInUrbanAreasFrom(state.dataSets))
       }
     } {
       doNothing()
     }
   }
 
-  def countCityPopulation: IndexedStateT[Task, BothGendersCityPopulationData, CityPopulationCount, Unit] = modifyF { state =>
+  def countCityPopulation: IndexedStateT[Task, CityPopulationDataset, CityPopulationCount, Unit] = modifyF { state =>
     Task {
       val count = countRowsIn(Seq(state.dataSet))
       println(s"\n\n >> City population count: $count\n")

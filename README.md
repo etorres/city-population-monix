@@ -21,8 +21,14 @@ Improvements:
 
 More improvements
 
-* Use >> operator instead of for comprehention.
+* Use >> operator instead of for comprehension.
 * Catch exceptions of main.
+
+## Feedback from:
+
+@Ferran.Gali: Task composition could be useful if you reduce the boilerplate and also reduce the entry barrier (e.g state monad). Task decorators like retry and timing are not useful since they overlap with similar functionality already present in Spark.
+
+## Getting Started
 
 ```shell script
 jenv exec sbt clean test
