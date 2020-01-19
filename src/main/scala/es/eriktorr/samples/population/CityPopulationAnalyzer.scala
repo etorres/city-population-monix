@@ -2,7 +2,7 @@ package es.eriktorr.samples.population
 
 import cats.data.IndexedStateT
 import cats.data.IndexedStateT.modifyF
-import es.eriktorr.samples.population.steps.PeopleLivingInUrbanAreasFilter.peopleLivingInUrbanAreasFrom
+import es.eriktorr.samples.population.steps.UrbanAreasFilter.urbanAreasPopulationFrom
 import es.eriktorr.samples.population.steps.CityPopulationLoader.loadFrom
 import es.eriktorr.samples.population.steps.RowCounter.countRowsIn
 import es.eriktorr.samples.population.tasks.Retryable.implicits._
@@ -38,7 +38,7 @@ object CityPopulationAnalyzer {
     buildSession.bracket { spark =>
       implicit val sparkSession: SparkSession = spark
       Task {
-        CityPopulationDataset(peopleLivingInUrbanAreasFrom(state.dataSets))
+        CityPopulationDataset(urbanAreasPopulationFrom(state.dataSets))
       }
     } {
       doNothing()
