@@ -1,64 +1,54 @@
 package es.eriktorr.samples.population
 
-import cats.data.IndexedStateT
-import cats.data.IndexedStateT.modifyF
-import es.eriktorr.samples.population.steps.UrbanAreasFilter.urbanAreasPopulationFrom
+import cats.data.{IndexedStateT, StateT}
 import es.eriktorr.samples.population.steps.CityPopulationLoader.loadFrom
-import es.eriktorr.samples.population.steps.RowCounter.countRowsIn
-import es.eriktorr.samples.population.tasks.Retryable.implicits._
+import es.eriktorr.samples.population.steps.SparkSessionProvider
+import es.eriktorr.samples.population.steps.UrbanAreasAggregator.totalUrbanAreaPopulationFrom
+import es.eriktorr.samples.population.steps.UrbanAreasFilter.urbanAreasPopulationFrom
 import es.eriktorr.samples.population.tasks.TaskState.implicits._
 import es.eriktorr.samples.population.tasks._
 import monix.eval.Task
-import monix.eval.Task.gatherN
 import org.apache.spark.sql.SparkSession
 
 object CityPopulationAnalyzer {
-  def countCityPopulationIn(femaleSourceFile: String, maleSourceFile: String): Task[(TaskState, Unit)] = {
-    val initialState = SourceFiles(Seq(femaleSourceFile, maleSourceFile))
-    cityPopulationCounter.run(initialState)
+  def peopleLivingInUrbanAreasFrom(femaleSourceFile: String, maleSourceFile: String): Task[(TaskState, Unit)] = {
+    val initialState = CityPopulationSources(femaleSourceFile, maleSourceFile)
+    task.run(initialState)
   }
 
-  def cityPopulationCounter: IndexedStateT[Task, SourceFiles, CityPopulationCount, Unit] = {
-    loadCityPopulation >> peopleLivingInUrbanAreas >> countCityPopulation
+  def task: IndexedStateT[Task, CityPopulationSources, UrbanAreaPopulationDataset, Unit] = {
+    loadFemalePopulation >> loadMalePopulation >> filterUrbanAreas >> totalPopulationInUrbanAreas
   }
 
-  def loadCityPopulation: IndexedStateT[Task, SourceFiles, CityPopulationGroups, Unit] = modifyF { state =>
-    buildSession.bracket { spark =>
-      implicit val sparkSession: SparkSession = spark
-      val loadFileLTasks = state.files.map(file => Task {
-        loadFrom(file)
-      }.retryOnFailure())
-      gatherN(2)(loadFileLTasks).map(dataSets => CityPopulationGroups(dataSets))
-    } {
-      doNothing()
-    }
+  def loadFemalePopulation: StateT[Task, CityPopulationSources, Unit] = transform { state =>
+    val femaleDataSet = loadFrom(state.femaleSourceFile)
+    state.copy(dataSets = state.dataSets :+ femaleDataSet)
   }
 
-  def peopleLivingInUrbanAreas: IndexedStateT[Task, CityPopulationGroups, CityPopulationDataset, Unit] = modifyF { state =>
-    buildSession.bracket { spark =>
-      implicit val sparkSession: SparkSession = spark
+  def loadMalePopulation: StateT[Task, CityPopulationSources, Unit] = transform { state =>
+    val maleDataSet = loadFrom(state.maleSourceFile)
+    state.copy(dataSets = state.dataSets :+ maleDataSet)
+  }
+
+  def filterUrbanAreas: IndexedStateT[Task, CityPopulationSources, CityPopulationDataset, Unit] = transform { state =>
+    val urbanAreasPopulation = urbanAreasPopulationFrom(state.dataSets)
+    CityPopulationDataset(urbanAreasPopulation)
+  }
+
+  def totalPopulationInUrbanAreas: IndexedStateT[Task, CityPopulationDataset, UrbanAreaPopulationDataset, Unit] = transform { state =>
+    val totalPopulationLivingInUrbanAreas = totalUrbanAreaPopulationFrom(state.dataSet)
+    UrbanAreaPopulationDataset(totalPopulationLivingInUrbanAreas)
+  }
+
+  def transform[SA <: TaskState, SB <: TaskState](fun: SA => SB): IndexedStateT[Task, SA, SB, Unit] = IndexedStateT.modifyF { state =>
+    buildSession.flatMap(_ => {
       Task {
-        CityPopulationDataset(urbanAreasPopulationFrom(state.dataSets))
+        fun.apply(state)
       }
-    } {
-      doNothing()
-    }
+    })
   }
 
-  def countCityPopulation: IndexedStateT[Task, CityPopulationDataset, CityPopulationCount, Unit] = modifyF { state =>
-    Task {
-      val count = countRowsIn(Seq(state.dataSet))
-      println(s"\n\n >> City population count: $count\n")
-      CityPopulationCount(count = count)
-    }
-  }
-
-  def buildSession: Task[SparkSession] = Task {
-    SparkSession.builder
-      .appName("city-population")
-      .master("local[*]")
-      .getOrCreate()
+  lazy val buildSession: Task[SparkSession] = Task {
+    SparkSessionProvider.localRunner
   }.memoizeOnSuccess
-
-  private def doNothing(): SparkSession => Task[Unit] = _ => Task.unit
 }

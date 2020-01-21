@@ -4,13 +4,13 @@ import cats.effect.ExitCase.{Canceled, Completed, Error}
 import cats.effect.ExitCode
 import cats.implicits._
 import com.typesafe.scalalogging.LazyLogging
-import es.eriktorr.samples.population.CityPopulationAnalyzer.countCityPopulationIn
+import es.eriktorr.samples.population.CityPopulationAnalyzer.peopleLivingInUrbanAreasFrom
 import monix.eval.{Task, TaskApp}
 
 object CityPopulationApplication extends TaskApp with LazyLogging {
   override def run(args: List[String]): Task[ExitCode] = args match {
     case (femalePopulationFile: String) :: (malePopulationFile: String) :: _ => logOnComplete(
-      countCityPopulationIn(femalePopulationFile, malePopulationFile)
+      peopleLivingInUrbanAreasFrom(femalePopulationFile, malePopulationFile)
     ).as(ExitCode.Success)
     case _ => printUsage().as(ExitCode.Error)
   }
@@ -25,6 +25,6 @@ object CityPopulationApplication extends TaskApp with LazyLogging {
   }
 
   private def printUsage(): Task[Unit] = Task {
-    Console.err.println("Usage: <female population> <male population>")
+    Console.err.println("Usage: <female population file> <male population file>")
   }
 }

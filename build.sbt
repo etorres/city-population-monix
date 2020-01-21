@@ -21,7 +21,6 @@ lazy val root = project.in(file(".")).
       "org.apache.spark" %% "spark-sql"  % SparkVersion,
       "io.monix" %% "monix-eval" % MonixVersion,
       "com.typesafe.scala-logging" %% "scala-logging" % ScalaLoggingVersion,
-//      "nl.grons" %% "metrics-scala" % MetricsVersion excludeAll(ExclusionRule(organization = "io.dropwizard.metrics")),
       "com.holdenkarau" %% "spark-testing-base" % SparkTestingVersion % Test
     ),
     logBuffered in Test := false,

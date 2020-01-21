@@ -1,11 +1,11 @@
 package es.eriktorr.samples.population.steps
 
 import es.eriktorr.samples.population.models.{CityPopulation, UrbanAreaPopulation}
-import org.apache.spark.sql.{Dataset, SparkSession}
+import org.apache.spark.sql.Dataset
 import org.apache.spark.sql.functions._
 
-object UrbanAreasAggregator {
-  def totalUrbanAreaPopulationFrom(dataset: Dataset[CityPopulation])(implicit spark: SparkSession): Dataset[UrbanAreaPopulation] = {
+object UrbanAreasAggregator extends SparkSessionProvider {
+  def totalUrbanAreaPopulationFrom(dataset: Dataset[CityPopulation]): Dataset[UrbanAreaPopulation] = {
     import spark.implicits._
     dataset
       .where('area === "Total")
