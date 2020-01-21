@@ -5,7 +5,7 @@ import org.apache.spark.sql.Dataset
 import org.apache.spark.sql.functions._
 
 object UrbanAreasAggregator extends SparkSessionProvider {
-  def totalUrbanAreaPopulationFrom(dataset: Dataset[CityPopulation]): Dataset[UrbanAreaPopulation] = {
+  def urbanAreasTotalPopulationFrom(dataset: Dataset[CityPopulation]): Dataset[UrbanAreaPopulation] = {
     import spark.implicits._
     dataset
       .where('area === "Total")

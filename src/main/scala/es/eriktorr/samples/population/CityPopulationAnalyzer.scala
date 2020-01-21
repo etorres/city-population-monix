@@ -4,8 +4,8 @@ import cats.data.{IndexedStateT, StateT}
 import es.eriktorr.samples.population.flow.TaskFlow.implicits._
 import es.eriktorr.samples.population.flow.{TaskFlow, TaskState}
 import es.eriktorr.samples.population.states.{CityPopulationDataset, CityPopulationSources, UrbanAreaPopulationDataset}
-import es.eriktorr.samples.population.steps.CityPopulationLoader.loadFrom
-import es.eriktorr.samples.population.steps.UrbanAreasAggregator.totalUrbanAreaPopulationFrom
+import es.eriktorr.samples.population.steps.CityPopulationReader.cityPopulationFrom
+import es.eriktorr.samples.population.steps.UrbanAreasAggregator.urbanAreasTotalPopulationFrom
 import es.eriktorr.samples.population.steps.UrbanAreasFilter.urbanAreasPopulationFrom
 import monix.eval.Task
 
@@ -16,16 +16,16 @@ object CityPopulationAnalyzer extends TaskFlow {
   }
 
   def task: IndexedStateT[Task, CityPopulationSources, UrbanAreaPopulationDataset, Unit] = {
-    loadFemalePopulation >> loadMalePopulation >> filterUrbanAreas >> totalPopulationInUrbanAreas
+    loadFemalePopulation >> loadMalePopulation >> filterUrbanAreas >> findUrbanAreasTotalPopulation
   }
 
   def loadFemalePopulation: StateT[Task, CityPopulationSources, Unit] = transform { state =>
-    val femaleDataSet = loadFrom(state.femaleSourceFile)
+    val femaleDataSet = cityPopulationFrom(state.femaleSourceFile)
     state.copy(dataSets = state.dataSets :+ femaleDataSet)
   }
 
   def loadMalePopulation: StateT[Task, CityPopulationSources, Unit] = transform { state =>
-    val maleDataSet = loadFrom(state.maleSourceFile)
+    val maleDataSet = cityPopulationFrom(state.maleSourceFile)
     state.copy(dataSets = state.dataSets :+ maleDataSet)
   }
 
@@ -34,8 +34,8 @@ object CityPopulationAnalyzer extends TaskFlow {
     CityPopulationDataset(urbanAreasPopulation)
   }
 
-  def totalPopulationInUrbanAreas: IndexedStateT[Task, CityPopulationDataset, UrbanAreaPopulationDataset, Unit] = transform { state =>
-    val totalPopulationLivingInUrbanAreas = totalUrbanAreaPopulationFrom(state.dataSet)
+  def findUrbanAreasTotalPopulation: IndexedStateT[Task, CityPopulationDataset, UrbanAreaPopulationDataset, Unit] = transform { state =>
+    val totalPopulationLivingInUrbanAreas = urbanAreasTotalPopulationFrom(state.dataSet)
     UrbanAreaPopulationDataset(totalPopulationLivingInUrbanAreas)
   }
 }

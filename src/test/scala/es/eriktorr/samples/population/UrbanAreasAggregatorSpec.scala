@@ -1,12 +1,12 @@
 package es.eriktorr.samples.population
 
 import es.eriktorr.samples.population.models.{CityPopulation, UrbanAreaPopulation}
-import es.eriktorr.samples.population.steps.UrbanAreasAggregator.totalUrbanAreaPopulationFrom
+import es.eriktorr.samples.population.steps.UrbanAreasAggregator.urbanAreasTotalPopulationFrom
 import org.apache.spark.sql.SparkSession
 
 class UrbanAreasAggregatorSpec extends SetupDataset {
   "Aggregator" should "count total urban area population" in {
-    assertDatasetEquals(urbanAreaDataset, totalUrbanAreaPopulationFrom(cityPopulationDataset))
+    assertDatasetEquals(urbanAreaDataset, urbanAreasTotalPopulationFrom(cityPopulationDataset))
   }
 
   private def urbanAreaDataset(implicit spark: SparkSession) = {
