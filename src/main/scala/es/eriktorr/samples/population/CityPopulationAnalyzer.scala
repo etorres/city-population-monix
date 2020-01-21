@@ -1,16 +1,15 @@
 package es.eriktorr.samples.population
 
 import cats.data.{IndexedStateT, StateT}
+import es.eriktorr.samples.population.flow.TaskFlow.implicits._
+import es.eriktorr.samples.population.flow.{TaskFlow, TaskState}
+import es.eriktorr.samples.population.states.{CityPopulationDataset, CityPopulationSources, UrbanAreaPopulationDataset}
 import es.eriktorr.samples.population.steps.CityPopulationLoader.loadFrom
-import es.eriktorr.samples.population.steps.SparkSessionProvider
 import es.eriktorr.samples.population.steps.UrbanAreasAggregator.totalUrbanAreaPopulationFrom
 import es.eriktorr.samples.population.steps.UrbanAreasFilter.urbanAreasPopulationFrom
-import es.eriktorr.samples.population.tasks.TaskState.implicits._
-import es.eriktorr.samples.population.tasks._
 import monix.eval.Task
-import org.apache.spark.sql.SparkSession
 
-object CityPopulationAnalyzer {
+object CityPopulationAnalyzer extends TaskFlow {
   def peopleLivingInUrbanAreasFrom(femaleSourceFile: String, maleSourceFile: String): Task[(TaskState, Unit)] = {
     val initialState = CityPopulationSources(femaleSourceFile, maleSourceFile)
     task.run(initialState)
@@ -39,16 +38,4 @@ object CityPopulationAnalyzer {
     val totalPopulationLivingInUrbanAreas = totalUrbanAreaPopulationFrom(state.dataSet)
     UrbanAreaPopulationDataset(totalPopulationLivingInUrbanAreas)
   }
-
-  def transform[SA <: TaskState, SB <: TaskState](fun: SA => SB): IndexedStateT[Task, SA, SB, Unit] = IndexedStateT.modifyF { state =>
-    buildSession.flatMap(_ => {
-      Task {
-        fun.apply(state)
-      }
-    })
-  }
-
-  lazy val buildSession: Task[SparkSession] = Task {
-    SparkSessionProvider.localRunner
-  }.memoizeOnSuccess
 }

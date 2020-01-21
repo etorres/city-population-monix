@@ -1,7 +1,7 @@
 package es.eriktorr.samples.population
 
 import es.eriktorr.samples.population.CityPopulationAnalyzer.peopleLivingInUrbanAreasFrom
-import es.eriktorr.samples.population.tasks.UrbanAreaPopulationDataset
+import es.eriktorr.samples.population.states.UrbanAreaPopulationDataset
 import monix.execution.Scheduler.Implicits.global
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.time.{Seconds, Span}
