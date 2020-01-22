@@ -2,8 +2,6 @@ lazy val SparkVersion = "2.4.3"
 lazy val SparkTestingVersion = s"${SparkVersion}_0.12.0"
 lazy val MonixVersion = "3.1.0"
 lazy val ScalaLoggingVersion = "3.9.2"
-lazy val PureConfigVersion = "0.12.2"
-lazy val H2DatabaseVersion = "1.4.200"
 
 def makeColorConsole() = {
   val ansi = System.getProperty("sbt.log.noformat", "false") != "true"
@@ -22,8 +20,6 @@ lazy val root = project.in(file(".")).
       "org.apache.spark" %% "spark-sql"  % SparkVersion,
       "io.monix" %% "monix-eval" % MonixVersion,
       "com.typesafe.scala-logging" %% "scala-logging" % ScalaLoggingVersion,
-      "com.github.pureconfig" %% "pureconfig" % PureConfigVersion,
-      "com.h2database" % "h2" % H2DatabaseVersion,
       "com.holdenkarau" %% "spark-testing-base" % SparkTestingVersion % Test
     ),
     logBuffered in Test := false,

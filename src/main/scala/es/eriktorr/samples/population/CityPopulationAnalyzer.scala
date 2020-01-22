@@ -7,6 +7,7 @@ import es.eriktorr.samples.population.states.{CityPopulationDataset, CityPopulat
 import es.eriktorr.samples.population.steps.CityPopulationReader.cityPopulationFrom
 import es.eriktorr.samples.population.steps.UrbanAreasAggregator.urbanAreasTotalPopulationFrom
 import es.eriktorr.samples.population.steps.UrbanAreasFilter.urbanAreasPopulationFrom
+import es.eriktorr.samples.population.steps.UrbanAreasTotalPopulationExporter.saveUrbanAreasTotalPopulationView
 import monix.eval.Task
 
 object CityPopulationAnalyzer extends TaskFlow {
@@ -16,7 +17,7 @@ object CityPopulationAnalyzer extends TaskFlow {
   }
 
   def task: IndexedStateT[Task, CityPopulationSources, UrbanAreaPopulationDataset, Unit] = {
-    loadFemalePopulation >> loadMalePopulation >> filterUrbanAreas >> findUrbanAreasTotalPopulation
+    loadFemalePopulation >> loadMalePopulation >> filterUrbanAreas >> findUrbanAreasTotalPopulation >> saveView
   }
 
   def loadFemalePopulation: StateT[Task, CityPopulationSources, Unit] = transform { state =>
@@ -37,5 +38,10 @@ object CityPopulationAnalyzer extends TaskFlow {
   def findUrbanAreasTotalPopulation: IndexedStateT[Task, CityPopulationDataset, UrbanAreaPopulationDataset, Unit] = transform { state =>
     val totalPopulationLivingInUrbanAreas = urbanAreasTotalPopulationFrom(state.dataSet)
     UrbanAreaPopulationDataset(totalPopulationLivingInUrbanAreas)
+  }
+
+  def saveView: StateT[Task, UrbanAreaPopulationDataset, Unit] = transform { state =>
+    saveUrbanAreasTotalPopulationView(state.dataSet)
+    state
   }
 }

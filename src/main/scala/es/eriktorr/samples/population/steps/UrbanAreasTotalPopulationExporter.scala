@@ -4,8 +4,9 @@ import es.eriktorr.samples.population.models.UrbanAreaPopulation
 import org.apache.spark.sql.Dataset
 
 object UrbanAreasTotalPopulationExporter extends SparkSessionProvider {
-  def urbanAreasTotalPopulationTo(pathToFile: String, dataSet: Dataset[UrbanAreaPopulation]): Unit = {
-//    dataSet.write
-//      .jdbc()
+  val URBAN_AREAS_TOTAL_POPULATION_VIEW = "urban_areas_total_population_view"
+
+  def saveUrbanAreasTotalPopulationView(dataSet: Dataset[UrbanAreaPopulation]): Unit = {
+    dataSet.createOrReplaceTempView(URBAN_AREAS_TOTAL_POPULATION_VIEW)
   }
 }
