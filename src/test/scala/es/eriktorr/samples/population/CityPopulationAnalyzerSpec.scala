@@ -12,24 +12,27 @@ case class SampledUrbanAreaPopulation(countryOrArea: String,
                                       sum: Option[Double])
 
 class CityPopulationAnalyzerSpec extends SetupDataset with ScalaFutures {
+  import spark.implicits._
+
   "Task execution" should "create a view with the total population of the urban areas" in {
     val future = peopleLivingInUrbanAreasFrom(pathToFile("data/city_female_population"),
       pathToFile("data/city_male_population")).runToFuture
     whenReady(future, timeout(Span(10, Seconds))) {
       case (_, _) =>
-        import spark.implicits._
-        val expectedDataset = Seq(SampledUrbanAreaPopulation(
-          countryOrArea = "Andorra", city = "ANDORRA LA VELLA", sum = Option(188738.0)
-        )).toDF
-        assertDataFrameEquals(expectedDataset, sampleView)
+        assertDataFrameEquals(expectedDataframe, sampleView)
     }
   }
 
   def sampleView: DataFrame = {
     import spark.sql
-    sql(s"""SELECT countryOrArea, city, SUM(total) AS sum
-           |FROM ${UrbanAreasTotalPopulationExporter.URBAN_AREAS_TOTAL_POPULATION_VIEW}
-           |WHERE countryOrArea = 'Andorra' AND city = 'ANDORRA LA VELLA'
-           |GROUP BY countryOrArea, city""".stripMargin)
+    sql(
+      s"""SELECT countryOrArea, city, SUM(total) AS sum
+         |FROM ${UrbanAreasTotalPopulationExporter.URBAN_AREAS_TOTAL_POPULATION_VIEW}
+         |WHERE countryOrArea = 'Andorra' AND city = 'ANDORRA LA VELLA'
+         |GROUP BY countryOrArea, city""".stripMargin)
   }
+
+  lazy val expectedDataframe: DataFrame = Seq(SampledUrbanAreaPopulation(
+    countryOrArea = "Andorra", city = "ANDORRA LA VELLA", sum = Option(188738.0)
+  )).toDF
 }
