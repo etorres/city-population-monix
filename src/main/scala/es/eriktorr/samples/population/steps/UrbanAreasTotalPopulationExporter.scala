@@ -5,6 +5,7 @@ import org.apache.spark.sql.Dataset
 
 object UrbanAreasTotalPopulationExporter extends SparkSessionProvider {
   def urbanAreasTotalPopulationTo(pathToFile: String, dataSet: Dataset[UrbanAreaPopulation]): Unit = {
-    dataSet.write.parquet(pathToFile)
+//    dataSet.write
+//      .jdbc()
   }
 }

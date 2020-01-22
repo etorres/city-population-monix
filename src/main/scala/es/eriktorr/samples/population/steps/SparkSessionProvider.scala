@@ -7,7 +7,7 @@ trait SparkSessionProvider {
 }
 
 object SparkSessionProvider {
-  def localRunner: SparkSession = SparkSession.builder
+  def sparkSession: SparkSession = SparkSession.builder
     .appName("city-population")
     .master("local[*]")
     .getOrCreate()
