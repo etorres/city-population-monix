@@ -1,6 +1,6 @@
 package es.eriktorr.samples.population
 
-import es.eriktorr.samples.population.steps.CityPopulationReader.cityPopulationFrom
+import es.eriktorr.samples.population.steps.CityPopulationReader
 import org.scalatest.prop.TableDrivenPropertyChecks
 
 class CityPopulationReaderSpec extends SetupDataset with TableDrivenPropertyChecks {
@@ -10,7 +10,7 @@ class CityPopulationReaderSpec extends SetupDataset with TableDrivenPropertyChec
 
   "City population" should " be loaded from its CSV representation" in {
     forAll(csvPaths) { (pathName, count) =>
-      cityPopulationFrom(pathToFile(pathName)).count() shouldBe count
+      CityPopulationReader().cityPopulationFrom(pathToFile(pathName)).count() shouldBe count
     }
   }
 }

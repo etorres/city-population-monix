@@ -4,7 +4,11 @@ import es.eriktorr.samples.population.models.{CityPopulation, UrbanAreaPopulatio
 import org.apache.spark.sql.Dataset
 import org.apache.spark.sql.functions._
 
-object UrbanAreasAggregator extends SparkSessionProvider {
+object UrbanAreasAggregator {
+  def apply(): UrbanAreasAggregator = new UrbanAreasAggregator()
+}
+
+class UrbanAreasAggregator extends SparkSessionProvider {
   def urbanAreasTotalPopulationFrom(dataset: Dataset[CityPopulation]): Dataset[UrbanAreaPopulation] = {
     import spark.implicits._
     dataset

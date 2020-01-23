@@ -90,14 +90,17 @@ After entering the above code in your `Spark` interactive shell you should get a
 
 Short answer: nothing. Many companies use similar code in production every day without any hesitation.
 
-If you decided to keep reading, then you should know that there is a bunch of things that can be improved in this code. First, responsibilities are not clearly defined in the code and different concerns like loading the input records and aggregating them are part of the same component. The low level of modularity makes the code difficult to modify, and what is more important, an error in one line may cascade to other parts of the code and thus making root error cause trace more difficult.
+If you decided to keep reading, then you should know that there is a bunch of things that can be improved in this code. First, responsibilities are not clearly defined in the code and different concerns like loading the input records and aggregating them are part of the same component. The low level of modularity makes the code difficult to modify, and what is more important, an error in one line may cascade to other parts of the code and thus making error root cause tracing more difficult.
 
+### Functional programming to the rescue
 
-TODO
+A possible approach to improving the modularity of and testability of 
+
+__TODO__
 
 ## Acknowledgments
 
-Thanks to Ferran Gali (@ferrangali) for giving me advice on the ...
+Thanks to Ferran Gali (@ferrangali) for giving me advice on `Spark`.
 
 ## Getting Started
 
