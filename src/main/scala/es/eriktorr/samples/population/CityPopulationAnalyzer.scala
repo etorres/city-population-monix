@@ -17,7 +17,7 @@ object CityPopulationAnalyzer extends TaskFlow {
   }
 
   def task: IndexedStateT[Task, CityPopulationSources, UrbanAreaPopulationDataset, Unit] = {
-    loadFemalePopulation >> loadMalePopulation >> filterUrbanAreas >> findUrbanAreasTotalPopulation >> saveView
+    loadFemalePopulation >> loadMalePopulation >> filterUrbanAreas >> findTotalPopulationLivingInUrbanAreas >> saveView
   }
 
   def loadFemalePopulation: StateT[Task, CityPopulationSources, Unit] = transform { state =>
@@ -35,7 +35,7 @@ object CityPopulationAnalyzer extends TaskFlow {
     CityPopulationDataset(urbanAreasPopulation)
   }
 
-  def findUrbanAreasTotalPopulation: IndexedStateT[Task, CityPopulationDataset, UrbanAreaPopulationDataset, Unit] = transform { state =>
+  def findTotalPopulationLivingInUrbanAreas: IndexedStateT[Task, CityPopulationDataset, UrbanAreaPopulationDataset, Unit] = transform { state =>
     val totalPopulationLivingInUrbanAreas = urbanAreasTotalPopulationFrom(state.dataSet)
     UrbanAreaPopulationDataset(totalPopulationLivingInUrbanAreas)
   }

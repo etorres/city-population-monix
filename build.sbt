@@ -30,14 +30,15 @@ lazy val root = project.in(file(".")).
       "-deprecation",
       "-encoding", "UTF-8",
       "-language:higherKinds",
-      "-language:postfixOps"),
+      "-language:postfixOps",
+      "-Xfatal-warnings"),
     initialize ~= { _ => makeColorConsole() },
     initialCommands in console :=
       """
         |import org.apache.spark.{SparkConf, SparkContext}
         |import org.apache.spark.sql.SparkSession
         |
-        |val conf = new SparkConf().setMaster("local[*]").setAppName("frameless-repl").set("spark.ui.enabled", "false")
+        |val conf = new SparkConf().setMaster("local[*]").setAppName("monix-repl").set("spark.ui.enabled", "false")
         |implicit val spark = SparkSession.builder().config(conf).appName("city-population").getOrCreate()
         |
         |import spark.implicits._

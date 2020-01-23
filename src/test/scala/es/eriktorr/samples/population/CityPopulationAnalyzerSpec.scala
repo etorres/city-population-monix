@@ -28,11 +28,11 @@ class CityPopulationAnalyzerSpec extends SetupDataset with ScalaFutures {
     sql(
       s"""SELECT countryOrArea, city, SUM(total) AS sum
          |FROM ${UrbanAreasTotalPopulationExporter.URBAN_AREAS_TOTAL_POPULATION_VIEW}
-         |WHERE countryOrArea = 'Andorra' AND city = 'ANDORRA LA VELLA'
+         |WHERE countryOrArea = 'Spain' AND city = 'Barcelona'
          |GROUP BY countryOrArea, city""".stripMargin)
   }
 
   lazy val expectedDataframe: DataFrame = Seq(SampledUrbanAreaPopulation(
-    countryOrArea = "Andorra", city = "ANDORRA LA VELLA", sum = Option(188738.0)
+    countryOrArea = "Spain", city = "Barcelona", sum = Option(2208652.0)
   )).toDF
 }

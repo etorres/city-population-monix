@@ -6,20 +6,17 @@ import monix.eval.Task
 import org.apache.spark.sql.SparkSession
 
 trait TaskFlow {
-  private lazy val sparkSession = SparkSessionProvider.sparkSession
-
-  def transform[SA <: TaskState, SB <: TaskState](fun: SA => SB): IndexedStateT[Task, SA, SB, Unit] = {
-    lazy val buildSession: Task[SparkSession] = Task {
-      sparkSession
-    }.memoizeOnSuccess
-    IndexedStateT.modifyF { state =>
-      buildSession.flatMap(_ => {
-        Task {
-          fun.apply(state)
-        }
-      })
-    }
+  def transform[SA <: TaskState, SB <: TaskState](fun: SA => SB): IndexedStateT[Task, SA, SB, Unit] = IndexedStateT.modifyF { state =>
+    buildSession.flatMap(_ => {
+      Task {
+        fun.apply(state)
+      }
+    })
   }
+
+  private lazy val buildSession: Task[SparkSession] = Task {
+    SparkSessionProvider.sparkSession
+  }.memoizeOnSuccess
 }
 
 object TaskFlow {
