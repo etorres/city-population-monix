@@ -4,7 +4,7 @@ This small application written in `Scala` demonstrates the use of pure functiona
 
 Although Monix [Task](https://monix.io/api/3.1/monix/eval/Task.html) is a useful abstraction that allows us to move side-effects to the edge of our systems, it also increases the boilerplate code overhead. Furthermore, the introduction of the [state monad](https://typelevel.org/cats/datatypes/state.html) can act as an important barrier for the adoption of a side-effect free programming style.
 
-In this example, I experimented using an infix operator to compose tasks in a readable way. It's an alternative to using the `flatMap` method or the for comprehension syntactic sugar.
+In this example, I experimented using an infix operator to compose tasks in a readable way. It's an alternative to using the `flatMap` method or the `for-comprehension` syntactic sugar.
 
 Also, I'm not considering at this time tasks decorators like retry and timing. My understanding is that such functionality already exists in `Spark` and there is little value in rewriting them.
 
@@ -94,7 +94,7 @@ If you decided to keep reading, then you should know that there is a bunch of th
 
 ### Functional programming to the rescue
 
-A possible approach to improving the modularity of and testability of 
+A possible approach to improve the modularity and consequently the testability of the previous example is to isolate each responsibility in its own module. Although this can be done in the code (for example, moving each responsibility into its own class or method)  ...
 
 __TODO__
 
@@ -110,10 +110,10 @@ Run tests locally in your laptop with the following command:
 sbt clean test
 ```
 
-Or build a distributable package including launcher scripts for *nix operating systems and Windows with the following:
+Or build a JAR package including all project dependencies with the following:
 
 ```shell script
-sbt universal:packageBin
+sbt assembly
 ```
 
 ## Known Issues

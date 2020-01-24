@@ -10,21 +10,27 @@ def makeColorConsole() = {
 
 lazy val root = project.in(file(".")).
   settings(
-    maintainer := "etserrano@gmail.com",
     organization := "es.eriktorr.samples",
     name := "city-population-monix",
     version := "1.0",
+
     scalaVersion := "2.12.10",
+
     libraryDependencies ++= Seq(
-      "org.apache.spark" %% "spark-core" % SparkVersion,
-      "org.apache.spark" %% "spark-sql"  % SparkVersion,
+      "org.apache.spark" %% "spark-core" % SparkVersion % Provided,
+      "org.apache.spark" %% "spark-sql"  % SparkVersion % Provided,
       "io.monix" %% "monix-eval" % MonixVersion,
       "com.typesafe.scala-logging" %% "scala-logging" % ScalaLoggingVersion,
       "com.holdenkarau" %% "spark-testing-base" % SparkTestingVersion % Test
     ),
+
     logBuffered in Test := false,
     fork in Test := true,
     parallelExecution in Test := false,
+
+    test in assembly := {},
+    mainClass in assembly := Some("es.eriktorr.samples.population.CityPopulationApplication"),
+
     javaOptions ++= Seq("-Xms512M", "-Xmx2048M", "-XX:+CMSClassUnloadingEnabled"),
     scalacOptions ++= Seq(
       "-deprecation",
@@ -32,6 +38,7 @@ lazy val root = project.in(file(".")).
       "-language:higherKinds",
       "-language:postfixOps",
       "-Xfatal-warnings"),
+
     initialize ~= { _ => makeColorConsole() },
     initialCommands in console :=
       """
@@ -49,5 +56,4 @@ lazy val root = project.in(file(".")).
       """
         |spark.stop()
       """.stripMargin
-  ).
-  enablePlugins(JavaAppPackaging)
+  )
