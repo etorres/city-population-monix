@@ -90,13 +90,13 @@ After entering the above code in your `Spark` interactive shell you should get a
 
 Short answer: nothing. Many companies use similar code in production every day without any hesitation.
 
-If you decided to keep reading, then you should know that there is a bunch of things that can be improved in this code. First, responsibilities are not clearly defined in the code and different concerns like loading the input records and aggregating them are part of the same component. The low level of modularity makes the code difficult to modify, and what is more important, an error in one line may cascade to other parts of the code and thus making error root cause tracing more difficult.
+If you decided to keep reading, then you should know that there is a bunch of things that can be improved in this code. First, responsibilities are not clearly defined in the code and different concerns like loading the input records and aggregating them are part of the same component. The low level of modularity makes the code difficult to modify and test, and what is more important, an error in one line may cascade to other parts of the code and thus making error root cause tracing more difficult.
 
 ### Functional programming to the rescue
 
-A possible approach to improve the modularity and consequently the testability of the previous example is to isolate each responsibility in its own module. Although this can be done in the code (for example, moving each responsibility into its own class or method)  ...
+A possible approach to improve the modularity and consequently the testability of the previous example is to isolate each responsibility in its own module. A first step is to move each responsibility into its own class. Then we should isolate side-effects 
 
-__TODO__
+Although this can be done in `Spark` ...
 
 ## Acknowledgments
 
